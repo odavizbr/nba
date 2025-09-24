@@ -1,26 +1,64 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import React, { useRef } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  Pressable,
+  Animated,
+} from 'react-native';
 
 export default function App() {
-  // Dados fictícios da NBA
-  const jogosNBA = [
-    { id: '1', casa: 'Lakers', fora: 'Warriors', placar: '112 - 108' },
-    { id: '2', casa: 'Celtics', fora: 'Bulls', placar: '120 - 105' },
-    { id: '3', casa: 'Heat', fora: 'Nets', placar: '99 - 101' },
+  // Dados fictícios de transferências
+  const transferencias = [
+    { id: '1', jogador: 'Damian Lillard', de: 'Portland Trail Blazers', para: 'Milwaukee Bucks' },
+    { id: '2', jogador: 'Chris Paul', de: 'Phoenix Suns', para: 'Golden State Warriors' },
+    { id: '3', jogador: 'Bradley Beal', de: 'Washington Wizards', para: 'Phoenix Suns' },
   ];
+
+  // Animação simples de clique
+  const escalaAnimada = useRef(new Animated.Value(1)).current;
+
+  const animarClique = () => {
+    Animated.sequence([
+      Animated.timing(escalaAnimada, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(escalaAnimada, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.titulo}>Últimos Jogos da NBA 🏀</Text>
+      <Text style={styles.titulo}>Transferências Recentes da NBA 🏀</Text>
 
       <FlatList
-        data={jogosNBA}
+        data={transferencias}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.time}>{item.casa} vs {item.fora}</Text>
-            <Text style={styles.placar}>{item.placar}</Text>
-          </View>
+          <Animated.View style={[styles.card, { transform: [{ scale: escalaAnimada }] }]}>
+            <Text style={styles.jogador}>{item.jogador}</Text>
+            <Text style={styles.info}>
+              {item.de} ➝ {item.para}
+            </Text>
+
+            <Pressable
+              onPress={animarClique}
+              style={({ pressed }) => [
+                styles.botao,
+                { backgroundColor: pressed ? '#1976D2' : '#2196F3' },
+              ]}
+            >
+              <Text style={styles.textoBotao}>Ver Detalhes</Text>
+            </Pressable>
+          </Animated.View>
         )}
       />
 
@@ -43,23 +81,36 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    padding: 15,
-    marginVertical: 8,
-    borderRadius: 10,
-    width: 300,
+    padding: 20,
+    marginVertical: 10,
+    borderRadius: 12,
+    width: 320,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 3 },
     shadowRadius: 5,
     elevation: 3,
   },
-  time: {
+  jogador: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
+    marginBottom: 6,
   },
-  placar: {
-    fontSize: 16,
+  info: {
+    fontSize: 15,
     color: '#555',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  botao: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  textoBotao: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });
